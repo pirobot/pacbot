@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="kobuki" default="true" />
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
+    <remap if="$(arg kobuki)" from="cmd_vel" to="/cmd_vel_mux/input/navi" />
+    
+    <rosparam file="$(find pacbot_nav)/piko/config/no_layers/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find pacbot_nav)/piko/config/no_layers/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find pacbot_nav)/piko/config/no_layers/local_costmap_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find pacbot_nav)/piko/config/no_layers/global_costmap_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find pacbot_nav)/piko/config/no_layers/base_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find pacbot_nav)/piko/config/no_layers/move_base_params.yaml" command="load" />
+    
+  </node>
+  
+</launch>
