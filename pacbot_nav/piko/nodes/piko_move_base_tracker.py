@@ -2,7 +2,7 @@
 
 """ move_base_tracker.py - Version 1.1 2016-06-20
 
-    Subscribe to the /goal_pose topic and move the robot to with a given distance of the target.
+    Subscribe to the /target_topic to get a goal pose and move the robot to with a given distance of the target.
 
     Created for the Pi Robot Project: http://www.pirobot.org
     Copyright (c) 2016 Patrick Goebel.  All rights reserved.
@@ -27,7 +27,6 @@ from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion, Twist
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from nav_msgs.msg import Odometry
-import message_filters
 import tf2_py
 import tf
 from tf.transformations import quaternion_from_euler
@@ -84,12 +83,6 @@ class Tracker():
         rospy.wait_for_message('target_topic', PoseStamped)
         
         rospy.wait_for_message('odom', Odometry)
-         
-#         target_sub = message_filters.Subscriber('target_topic', PoseStamped)
-#         odom_sub = message_filters.Subscriber('odom', Odometry)
-#          
-#         time_sync = message_filters.TimeSynchronizer([target_sub, odom_sub], 10)
-#         time_sync.registerCallback(self.track_target)
         
         # Subscribe to the goal_pose topic
         rospy.Subscriber('target_topic', PoseStamped, self.track_target)
@@ -140,9 +133,7 @@ class Tracker():
         yaw = atan2(y_base, x_base)
         q_array = quaternion_from_euler(0, 0, yaw)
         quat = Quaternion(q_array[0], q_array[1], q_array[2], q_array[3])
-        
-        #rospy.loginfo("YAW:" + str(yaw) + " TO LAST: " + str(distance_target_moved) + " TO TARGET: " + str(distance_to_target))
-        
+                
         if (last_target_x_map == 0 and last_target_y_map == 0) or distance_target_moved > self.linear_tracking_threshold:
             self.last_target_map_pose = target_in_map
             goal_pose = Pose()
