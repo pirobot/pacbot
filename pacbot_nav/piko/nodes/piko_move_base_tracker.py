@@ -39,7 +39,7 @@ class Tracker():
         rospy.on_shutdown(self.shutdown)
         
         # How quickly should we update the tracker
-        rate = rospy.Rate(rospy.get_param("~rate", 2))
+        self.rate = rospy.Rate(rospy.get_param("~rate", 1))
         
         # Linear and angular threshold differences from last goal before updating goal
         self.linear_tracking_threshold = rospy.get_param("~linear_tracking_threshold", 0.5)
@@ -162,7 +162,7 @@ class Tracker():
         
         self.move_base.send_goal(goal)
         
-        rospy.sleep(1)
+        self.rate.sleep()
 
     def shutdown(self):
         rospy.loginfo("Stopping the robot...")
