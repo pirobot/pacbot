@@ -34,7 +34,7 @@ from math import atan2, cos, sin, sqrt, copysign, pow
 
 class Tracker():
     def __init__(self):
-        rospy.init_node('nav_test', anonymous=True)
+        rospy.init_node('move_base_tracker', anonymous=True)
         
         rospy.on_shutdown(self.shutdown)
         
