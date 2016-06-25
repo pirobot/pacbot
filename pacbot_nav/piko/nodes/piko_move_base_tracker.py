@@ -94,7 +94,7 @@ class Tracker():
         # Subscribe to the goal_pose topic
         rospy.Subscriber('target_topic', PoseStamped, self.track_target)
         
-        self.goal_pose_pub = rospy.Publisher('goal_pose', PoseStamped, queue_size=5)
+        self.goal_pose_pub = rospy.Publisher('goal_pose', PoseStamped, queue_size=1)
                 
         rospy.loginfo("Target messages detected. Starting tracker...")
             
@@ -141,7 +141,7 @@ class Tracker():
         q_array = quaternion_from_euler(0, 0, yaw)
         quat = Quaternion(q_array[0], q_array[1], q_array[2], q_array[3])
         
-        rospy.loginfo("YAW:" + str(yaw) + " TO LAST: " + str(distance_target_moved) + " TO TARGET: " + str(distance_to_target))
+        #rospy.loginfo("YAW:" + str(yaw) + " TO LAST: " + str(distance_target_moved) + " TO TARGET: " + str(distance_to_target))
         
         if (last_target_x_map == 0 and last_target_y_map == 0) or distance_target_moved > self.linear_tracking_threshold:
             self.last_target_map_pose = target_in_map
@@ -150,25 +150,9 @@ class Tracker():
 
             if abs(distance_to_target - self.min_distance) > self.distance_tolerance:
                 # Set the goal location to the minimum distance from the target
-                goal_distance = abs(distance_to_target - self.min_distance)
+                goal_distance = max(0, distance_to_target - self.min_distance)
                 goal_pose.position.x = goal_distance * cos(yaw)
                 goal_pose.position.y = goal_distance * sin(yaw)
-                
-#             elif abs(yaw) > self.angular_tracking_threshold:
-#                 cmd_vel = Twist()
-#                 cmd_vel.angular.z = copysign(1.0, yaw)
-#                 self.cmd_vel_pub.publish(cmd_vel)
-#                 rospy.sleep(0.1)
-#                 return
-#                 
-#         elif abs(yaw) > self.angular_tracking_threshold:
-#             cmd_vel = Twist()
-#             cmd_vel.angular.z = copysign(1.0, yaw)
-#             self.cmd_vel_pub.publish(cmd_vel)
-#             rospy.sleep(0.1)
-#             return
-        # elif abs(yaw) > self.angular_tracking_threshold:
-        #  goal_pose.position = Point()
         else:
             return
 
@@ -188,56 +172,6 @@ class Tracker():
         self.move_base.send_goal(goal)
         
         rospy.sleep(1)
-        
-    def track_target_synced(self, pose_msg, odom_msg):
-        target_in_map =  self.tf.transformPose('/map', msg)
-
-        target_in_base = self.tf.transformPose('/base_link', msg)
-                
-        x_map = target_in_map.pose.position.x
-        y_map = target_in_map.pose.position.y
-        
-        last_target_x_map = self.last_target_map_pose.position.x
-        last_target_y_map = self.last_target_map_pose.position.y
-        
-        distance_target_moved = sqrt((x_map - last_target_x_map) * (x_map - last_target_x_map) + (y_map - last_target_y_map) * (y_map - last_target_y_map))
-        
-        # Compute the yaw angle to the target in the base frame
-        x_base = target_in_base.pose.position.x
-        y_base = target_in_base.pose.position.y
-        
-        distance_to_target = sqrt(x_base * x_base + y_base * y_base)
-        
-        yaw = atan2(y_base, x_base)
-        q_array = quaternion_from_euler(0, 0, yaw)
-        quat = Quaternion(q_array[0], q_array[1], q_array[2], q_array[3])
-        
-        #rospy.loginfo(abs(yaw))
-        
-        goal_pose = Pose()
-        
-        if ((last_target_x_map == 0 and last_target_y_map ==0) or distance_target_moved > self.linear_tracking_threshold) and distance_to_target > self.min_distance:
-            last_target_x_map = x_map
-            last_target_y_map = y_map
-            goal_pose.position = target_in_base.pose.position
-        elif abs(yaw) > self.angular_tracking_threshold:
-            cmd_vel = Twist()
-            cmd_vel.angular.z = copysign(1.0, yaw)
-            self.cmd_vel_pub.publish(cmd_vel)
-            return
-        else:
-            return
-
-        goal_pose.orientation = quat
-
-        goal = MoveBaseGoal()
-        goal.goal_pose.header.frame_id = 'base_link'
-        goal.goal_pose.pose = goal_pose
-        goal.goal_pose.header.stamp = rospy.Time.now()
-        
-        rospy.loginfo(goal)
-                
-        self.move_base.send_goal(goal)
 
     def shutdown(self):
         rospy.loginfo("Stopping the robot...")
