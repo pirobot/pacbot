@@ -42,14 +42,14 @@ class Tracker():
         self.rate = rospy.Rate(rospy.get_param("~rate", 1))
         
         # Linear and angular threshold differences from last goal before updating goal
-        self.linear_tracking_threshold = rospy.get_param("~linear_tracking_threshold", 0.5)
-        self.angular_tracking_threshold = rospy.get_param("~angular_tracking_threshold", 0.5)
+        self.linear_tracking_threshold = rospy.get_param("~linear_tracking_threshold", 0.2)
+        self.angular_tracking_threshold = rospy.get_param("~angular_tracking_threshold", 0.2)
 
         # Minimum distance to keep between robot and target
-        self.min_distance = rospy.get_param("~min_distance", 1.0)
+        self.min_distance = rospy.get_param("~min_distance", 0.8)
         
         # Tolerance around min distance
-        self.distance_tolerance = rospy.get_param("~distance_tolerance", 0.2)
+        self.distance_tolerance = rospy.get_param("~distance_tolerance", 0.1)
         
         # Publisher to manually control the robot (e.g. to stop it, queue_size=5)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=5)
