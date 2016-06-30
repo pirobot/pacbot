@@ -1,0 +1,16 @@
+<launch>
+
+   <arg name="walker_speed" default="0.5" />
+   <arg name="path_size" default="3" />
+   <arg name="rate" default="20" />
+   <arg name="move_target_rate" default="20" />
+
+   <node pkg="pacbot_utils" type="simulated_walker.py" name="simulated_walker" clear_params="true" output="screen">
+      <remap from="target_topic" to="target_pose" />
+      <param name="walker_speed" value="$(arg walker_speed)" />
+      <param name="path_size" value="$(arg path_size)" />
+      <param name="rate" value="$(arg rate)" />
+      <param name="move_target_rate" value="$(arg move_target_rate)" />
+
+   </node>
+</launch>

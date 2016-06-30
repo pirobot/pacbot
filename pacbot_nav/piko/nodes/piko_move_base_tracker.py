@@ -100,11 +100,11 @@ class Tracker():
         while not success:
             try:
                 # Get the target location in the map frame
-                self.tf.waitForTransform("/map", "/camera_rgb_optical_frame", lookup_time, rospy.Duration(3.0))
+                self.tf.waitForTransform("/map", msg.header.frame_id, lookup_time, rospy.Duration(3.0))
                 target_in_map =  self.tf.transformPose('/map', msg)
 
                 # Get the target location in the base frame
-                self.tf.waitForTransform("/base_link", "/camera_rgb_optical_frame", lookup_time, rospy.Duration(3.0))
+                self.tf.waitForTransform("/base_link", msg.header.frame_id, lookup_time, rospy.Duration(3.0))
                 target_in_base = self.tf.transformPose('/base_link', msg)
                 
                 success = True
@@ -149,6 +149,9 @@ class Tracker():
 
         # Set the orientation parallel to the vector between the robot and target
         goal_pose.orientation = quat
+        
+        # Zero out the z component of the goal
+        goal_pose.position.z = 0.0
         
         goal = MoveBaseGoal()
 
