@@ -166,7 +166,7 @@ if __name__=="__main__":
 
     server = InteractiveMarkerServer("interactive_walker")
   
-    position = Point( 3, -3, 0)
+    position = Point( 2, 2, 0)
     makeChessPieceMarker( position )
 
     server.applyChanges()
